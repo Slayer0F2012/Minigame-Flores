@@ -12,6 +12,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7558abb8dad05824381bd30676d7d63d, type: 3}
   m_Name: Item Teste
   m_EditorClassIdentifier: 
+  id: 
   itemName: Coisa
   itemImage: {fileID: 6021429754456298178, guid: 08c1ef0a959a2b24189e2843ce62584d, type: 3}
   description: "Descri\xE7\xE3o Coisa"
+  quantity: 1

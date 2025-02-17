@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -8,7 +9,7 @@ public class UIManager : MonoBehaviour
     public static UIManager Instance;
 
     public Image[] inventoryImages; // Imagens dos slots do inventário
-    public Text[] inventoryQuantityTexts; // Textos para mostrar as quantidades
+    public TextMeshProUGUI[] inventoryQuantityTexts; // Textos para mostrar as quantidades
 
     private void Awake()
     {
@@ -53,7 +54,7 @@ public class UIManager : MonoBehaviour
     }
 
     // Atualiza a quantidade de um item já existente no inventário
-    public static void UpdateInventorySlot(Item item)
+    public static void UpdateInventorySlot(InventoryItem item)
     {
         if (Instance == null) return;
 
@@ -61,10 +62,10 @@ public class UIManager : MonoBehaviour
         for (int i = 0; i < Instance.inventoryImages.Length; i++)
         {
             // Verifica se a imagem do slot é a mesma do item
-            if (Instance.inventoryImages[i].sprite == item.itemImage)
+            if (Instance.inventoryImages[i].sprite == item.item.itemImage)
             {
                 // Atualiza a quantidade no slot correspondente
-                if (Instance.inventoryQuantityTexts.Length > i && Instance.inventoryQuantityTexts[i] != null)
+                if (Instance.inventoryQuantityTexts.Length > i)
                 {
                     Instance.inventoryQuantityTexts[i].text = item.quantity.ToString();
                 }
