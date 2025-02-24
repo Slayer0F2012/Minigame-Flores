@@ -5,7 +5,21 @@ using TMPro;
 
 public class MoneyManager : MonoBehaviour
 {
+    
+        public static MoneyManager instance;
 
+        private void Awake()
+        {
+            if (instance == null)
+            {
+                instance = this;
+            }
+            else
+            {
+                Destroy(gameObject);
+            }
+        }
+    
     [SerializeField] private int currentMoney;
     [SerializeField] TMP_Text moneyText;
     void Start()

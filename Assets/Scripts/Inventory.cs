@@ -1,18 +1,24 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using TMPro; // Necessário para usar o TextMesh Pro
 
 public class Inventory : MonoBehaviour
 {
-    public List<InventoryItem> items = new(); // Lista de itens do inventário
-    public TextMeshProUGUI itemCountText; // Referência ao TextMeshPro para exibir a quantidade de itens
+    public static Inventory instance;
 
-    static Inventory instance;
+    [Range(1, 10)] public int inventorySpacesAmount;
+
+    public List<Item> items;
+
+    [SerializeField] ItemSlot itemSlotPrefab;
+
+    public List<ItemSlot> itemSlotList;
+
+    public GameObject inventoryObj;
+
 
     private void Awake()
     {
-        // Garantir que só tenha uma instância do Inventory
         if (instance == null)
         {
             instance = this;
@@ -24,49 +30,128 @@ public class Inventory : MonoBehaviour
         }
     }
 
-    public static void SetItem(Item newItem)
+    private void Start()
+    {
+        CreateInventory();
+    }
+
+    void CreateInventory()
+    {
+        for (int i = 0; i < inventorySpacesAmount; i++)
+        {
+            ItemSlot obj = Instantiate(itemSlotPrefab, inventoryObj.transform);
+            obj.gameObject.SetActive(false);
+            itemSlotList.Add(obj);
+        }
+    }
+
+    public void AddBackpackSpace(int amountToAdd)
+    {
+        for (int i = 0; i < amountToAdd; i++)
+        {
+            ItemSlot obj = Instantiate(itemSlotPrefab, inventoryObj.transform);
+            obj.gameObject.SetActive(false);
+            itemSlotList.Add(obj);
+        }
+
+        inventorySpacesAmount += amountToAdd;
+    }
+
+    public static void SetItem(Item item)
     {
         if (instance == null) return;
 
-        // Verifica se o item já existe no inventário usando o 'id'
-        InventoryItem existingItem = instance.items.Find(item => item != null && item.item.id == newItem.id);
-
-        if (existingItem != null)
+        if (instance.HasItem(item))
         {
-            // Se o item já existir, apenas aumenta a quantidade
-            existingItem.quantity += 1;  // Incrementa a quantidade
-            UIManager.UpdateInventorySlot(existingItem); // Atualiza a UI com a nova quantidade
+            instance.items.Add(item);
+            SetItemAmount(item);
         }
         else
         {
-            // Se não existir, adiciona o item ao inventário
-            instance.items.Add(new InventoryItem()
-            {
-                item = newItem,
-                quantity = 1,
-            });
-            UIManager.SetInventoryImages(newItem); // Adiciona a imagem e a quantidade à UI
+            instance.items.Add(item);
+            SetInventoryImages(item);
         }
-
-        // Atualiza o contador de itens
-        instance.UpdateItemCount();
     }
 
-    // Função para atualizar o contador de itens no TextMesh Pro
-    void UpdateItemCount()
+    public static void RemoveItem(Item item)
     {
-        int totalItemCount = 0;
+        if (instance == null) return;
 
-        // Conta a quantidade total de itens no inventário
-        foreach (var item in items)
+        instance.items.Remove(item);
+        SetItemAmount(item, true);
+
+    }
+
+    public bool HasItem(Item item)
+    {
+        return instance.items.Contains(item);
+    }
+
+
+    public static void SetInventoryImages(Item item)
+    {
+        if (instance == null) return;
+
+        foreach (ItemSlot itemSlot in instance.itemSlotList)
         {
-            totalItemCount += item.quantity; // Soma as quantidades de todos os itens
+            if (!itemSlot.gameObject.activeInHierarchy)
+            {
+                itemSlot.gameObject.SetActive(true);
+                itemSlot.image.sprite = item.itemImage;
+                break;
+            }
+        }
+    }
+
+    public static void SetItemAmount(Item item, bool remove = false)
+    {
+        Sprite targetSprite = item.itemImage;
+
+        foreach (ItemSlot itemSlot in instance.itemSlotList)
+        {
+            if (itemSlot.image.sprite == targetSprite)
+            {
+                if (remove)
+                {
+                    if (int.Parse(itemSlot.itemAmountText.text) == 1)
+                    {
+                        int newNumber = int.Parse(itemSlot.itemAmountText.text) - 1;
+                        itemSlot.image.sprite = null;
+                        itemSlot.gameObject.SetActive(false);
+                        break;
+                    }
+                    else
+                    {
+                        int newNumber = int.Parse(itemSlot.itemAmountText.text) - 1;
+                        itemSlot.itemAmountText.text = newNumber.ToString();
+                        break;
+                    }
+                }
+                else
+                {
+                    int newNumber = int.Parse(itemSlot.itemAmountText.text) + 1;
+                    itemSlot.itemAmountText.text = newNumber.ToString();
+                    break;
+                }
+
+            }
         }
 
-        // Atualiza o texto do contador
-        if (itemCountText != null)
+    }
+
+    public bool InventoryFull()
+    {
+        int activeSlots = 0;
+
+        foreach (ItemSlot itemSlot in itemSlotList)
         {
-            itemCountText.text = "Total de Itens: " + totalItemCount.ToString(); // Exibe a quantidade total
+            if (itemSlot.gameObject.activeInHierarchy)
+            {
+                activeSlots++;
+            }
         }
+
+        if (activeSlots == inventorySpacesAmount) return true;
+        else return false;
     }
 }

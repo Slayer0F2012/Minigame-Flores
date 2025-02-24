@@ -6,12 +6,17 @@ using UnityEngine;
 public class PlayerController : MonoBehaviour
 {
 
-
+    public static PlayerController instance;
     [SerializeField] private float velocity = 0.5f;
-
+    [SerializeField] GameObject powerupUI;
     [SerializeField] private MoneyManager MM;
 
+    private void Awake()
+    {
 
+        if (instance == null) instance = this;
+        else Destroy(gameObject);
+    }
     void FixedUpdate()
     {
         Vector3 movement = new Vector3(Input.GetAxis("Horizontal"), Input.GetAxis("Vertical"), 0);
@@ -27,21 +32,7 @@ public class PlayerController : MonoBehaviour
             {
                 interactable.Interact();
             }
-        }
-        else if (other.tag == "Coin")
-        {
-            MM.AddMoney(5);
-            Destroy(other.gameObject);
-        }
-        else if (other.tag == "Super Coin")
-        {
-            MM.AddMoney(25);
-            Destroy(other.gameObject);
-        }
-        else if (other.tag == "Lose") 
-        {
-            MM.LoseMoney();
-            Destroy(other.gameObject);
+        
         }
     }
 }
