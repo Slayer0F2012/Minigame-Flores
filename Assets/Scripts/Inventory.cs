@@ -7,15 +7,10 @@ public class Inventory : MonoBehaviour
     public static Inventory instance;
 
     [Range(1, 10)] public int inventorySpacesAmount;
-
-    public List<Item> items;
-
     [SerializeField] ItemSlot itemSlotPrefab;
-
+    public List<Item> items;
     public List<ItemSlot> itemSlotList;
-
     public GameObject inventoryObj;
-
 
     private void Awake()
     {
